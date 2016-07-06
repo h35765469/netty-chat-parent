@@ -8,10 +8,12 @@ import io.ganguo.chat.core.transport.Header;
 import io.ganguo.chat.core.transport.IMRequest;
 import io.ganguo.chat.core.transport.IMResponse;
 import io.ganguo.chat.route.biz.entity.Message;
+import io.ganguo.chat.route.biz.entity.OfflineMessage;
 import io.ganguo.chat.route.biz.service.impl.MessageServiceImpl;
 import io.ganguo.chat.route.server.dto.AckDTO;
 import io.ganguo.chat.route.server.dto.FileDTO;
 import io.ganguo.chat.route.server.dto.MessageDTO;
+import io.ganguo.chat.route.server.dto.OfflineMessageDTO;
 import io.ganguo.chat.route.server.file.ServerFile;
 import io.ganguo.chat.route.server.session.ClientSession;
 import io.ganguo.chat.route.server.session.ClientSessionManager;
@@ -45,23 +47,53 @@ public class MessageHandler extends IMHandler<IMRequest> {
     public void dispatch(IMConnection connection, IMRequest request) {
         Header header = request.getHeader();
         switch (header.getCommandId()) {
+            case Commands.USER_MESSAGE_OFFLINE :
+                loadUserOfflineMessage(connection , request);
+                break;
             case Commands.USER_MESSAGE_REQUEST:
-    sendUserMessage(connection, request);
-    break;
-    case Commands.USER_MESSAGE_SUCCESS:
-    onUserMessageSuccess(connection, request);
-    break;
-    case Commands.USER_FILE_REQUEST:
-    sendUserFile(connection,request);
-    break;
-    case Commands.USER_FILE_SUCCESS:
-    onUserFileSuccess(connection,request);
-    break;
-    default:
-            connection.close();
-    break;
+                sendUserMessage(connection, request);
+                break;
+            case Commands.USER_MESSAGE_SUCCESS:
+                onUserMessageSuccess(connection, request);
+                break;
+            case Commands.USER_FILE_REQUEST:
+                sendUserFile(connection,request);
+                break;
+            case Commands.USER_FILE_SUCCESS:
+                onUserFileSuccess(connection,request);
+                break;
+            default:
+                connection.close();
+            break;
 }
 }
+
+    private void loadUserOfflineMessage(IMConnection connection , IMRequest request){
+        MessageDTO messageDTO = request.readEntity(MessageDTO.class);
+        Message message = messageDTO.getMessage();
+        List<Message> list = new ArrayList<Message>();
+        list = messageService.GetOfflineMessage(message.getFrom());
+        String[] offlineMessageArray = new String[list.size()];
+        if( list != null){
+            for(int i = 0 ; i < list.size() ; i++){
+                System.out.println("離線訊息是 : " + list.get(i).getMessage());
+                offlineMessageArray[i] = list.get(i).getMessage();
+            }
+            messageService.RemoveOfflineMessage(message.getFrom());
+        }
+
+        ClientSession session = ClientSessionManager.getInstance().get(messageDTO.getFrom());
+        IMResponse resp = new IMResponse();
+        Header header = request.getHeader();
+        if(session != null){
+            resp.setHeader(request.getHeader());
+            OfflineMessage offlineMessage = new OfflineMessage();
+            offlineMessage.setOfflineMessageArray(offlineMessageArray);
+            resp.writeEntity(new OfflineMessageDTO(offlineMessage));
+            session.getConnection().sendResponse(resp);
+        }
+    }
+
 
     private void sendUserMessage(IMConnection connection, IMRequest request) {
         MessageDTO messageDTO = request.readEntity(MessageDTO.class);
