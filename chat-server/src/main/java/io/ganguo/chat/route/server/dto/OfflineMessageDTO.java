@@ -10,11 +10,27 @@ import io.ganguo.chat.route.biz.entity.OfflineMessage;
  */
 public class OfflineMessageDTO implements IMSerializer {
 
-    OfflineMessage offlineMessage;
+    private OfflineMessage offlineMessage;
 
-   public OfflineMessageDTO(OfflineMessage offlineMessage){
-       this.offlineMessage = offlineMessage;
-   }
+    public OfflineMessageDTO() {
+
+    }
+
+    public OfflineMessageDTO(OfflineMessage offlineMessage) {
+        this.offlineMessage = offlineMessage;
+    }
+
+    /*public Long getTo() {
+        return message.getTo();
+    }*/
+
+    public OfflineMessage getOfflineMessage() {
+        return offlineMessage;
+    }
+
+    public void setMessage(OfflineMessage offlineMessage) {
+        this.offlineMessage = offlineMessage;
+    }
 
 
     public DataBuffer encode(short version) {
@@ -25,9 +41,10 @@ public class OfflineMessageDTO implements IMSerializer {
 
 
     public void decode(DataBuffer buffer, short version) {
-        if(offlineMessage == null){
+        if (offlineMessage == null) {
             offlineMessage = new OfflineMessage();
         }
         offlineMessage.setOfflineMessageArray(buffer.readStringArray());
+
     }
 }
