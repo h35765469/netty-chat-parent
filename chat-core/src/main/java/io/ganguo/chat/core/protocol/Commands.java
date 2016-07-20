@@ -28,6 +28,11 @@ public class Commands {
     public static final short LOGIN_CHANNEL_KICKED = 0x2001;
 
     /**
+     * 載入朋友
+     */
+    public static final short FRIEND_REQUEST = 0x0003;
+
+    /**
      * 消息
      */
     public static final short USER_PRESENCE_CHANGED = 0x0100;
