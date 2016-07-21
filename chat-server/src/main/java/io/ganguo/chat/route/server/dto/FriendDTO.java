@@ -30,7 +30,7 @@ public class FriendDTO implements IMSerializer {
     public DataBuffer encode(short version) {
         DataBuffer buffer = new DataBuffer();
         buffer.writeString(friend.getUserName());
-        buffer.writeString(friend.getFriendUserName());
+        buffer.writeStringArray(friend.getFriendArray());
         return buffer;
     }
 
@@ -39,6 +39,6 @@ public class FriendDTO implements IMSerializer {
             friend = new Friend();
         }
         friend.setUserName(buffer.readString());
-        friend.setFriendUserName(buffer.readString());
+        friend.setFriendArray(buffer.readStringArray());
     }
 }
