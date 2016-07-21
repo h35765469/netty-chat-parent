@@ -31,6 +31,7 @@ public class Commands {
      * 載入朋友
      */
     public static final short FRIEND_REQUEST = 0x0003;
+    public static final short FRIEND_SUCCESS = 0x3003;
 
     /**
      * 消息
