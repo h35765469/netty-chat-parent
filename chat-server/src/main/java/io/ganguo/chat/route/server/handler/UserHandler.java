@@ -1,8 +1,11 @@
 package io.ganguo.chat.route.server.handler;
 
 import io.ganguo.chat.route.biz.bean.ClientType;
+import io.ganguo.chat.route.biz.entity.Friend;
 import io.ganguo.chat.route.biz.entity.Login;
+import io.ganguo.chat.route.biz.entity.OfflineMessage;
 import io.ganguo.chat.route.biz.entity.User;
+import io.ganguo.chat.route.biz.service.impl.FriendServiceImpl;
 import io.ganguo.chat.route.biz.service.impl.UserServiceImpl;
 import io.ganguo.chat.core.connetion.IMConnection;
 import io.ganguo.chat.core.handler.IMHandler;
@@ -11,7 +14,9 @@ import io.ganguo.chat.core.protocol.Handlers;
 import io.ganguo.chat.core.transport.Header;
 import io.ganguo.chat.core.transport.IMRequest;
 import io.ganguo.chat.core.transport.IMResponse;
+import io.ganguo.chat.route.server.dto.FriendDTO;
 import io.ganguo.chat.route.server.dto.LoginDTO;
+import io.ganguo.chat.route.server.dto.OfflineMessageDTO;
 import io.ganguo.chat.route.server.dto.UserDTO;
 import io.ganguo.chat.route.server.session.ClientSession;
 import io.ganguo.chat.route.server.session.ClientSessionManager;
@@ -19,6 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * @author Tony
@@ -30,6 +37,9 @@ public class UserHandler extends IMHandler<IMRequest> {
 
     @Autowired
     private UserServiceImpl userService;
+
+    @Autowired
+    private FriendServiceImpl friendService;
 
 
 
@@ -50,6 +60,8 @@ public class UserHandler extends IMHandler<IMRequest> {
             case Commands.LOGIN_CHANNEL_REQUEST:
                 loginChannel(connection, request);
                 break;
+            case Commands.FRIEND_REQUEST:
+                receiveFriend(connection, request);
             default:
                 connection.close();
                 break;
@@ -127,6 +139,7 @@ public class UserHandler extends IMHandler<IMRequest> {
         }
     }
 
+
     /**
      * 被踢下線
      *
@@ -141,6 +154,32 @@ public class UserHandler extends IMHandler<IMRequest> {
         resp.setHeader(header);
         connection.sendResponse(resp);
         connection.close();
+    }
+
+    private void receiveFriend(IMConnection connection, IMRequest request){
+        FriendDTO friendDTO = request.readEntity(FriendDTO.class);
+        Friend friend = friendDTO.getFriend();
+        List<Friend>friendList = friendService.getFriend(friend.getUserName());
+        if(friendList !=null){
+            String[] friendArray = new String[friendList.size()];
+            for(int i = 0 ; i < friendList.size() ; i++){
+                friendArray[i] = friendList.get(i).getFriendUserName();
+            }
+            friend.setFriendArray(friendArray);
+        }else{
+            String[] friendArray = new String[0];
+            friend.setFriendArray(friendArray);
+        }
+
+        ClientSession session = ClientSessionManager.getInstance().get(friend.getUserName());
+        if(session != null){
+            IMResponse resp = new IMResponse();
+            Header header = request.getHeader();
+            header.setCommandId(Commands.FRIEND_SUCCESS);
+            resp.setHeader(header);
+            resp.writeEntity(new FriendDTO(friend));
+            session.getConnection().sendResponse(resp);
+        }
     }
 
 }
