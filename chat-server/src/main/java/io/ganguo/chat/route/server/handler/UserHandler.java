@@ -23,6 +23,8 @@ import io.ganguo.chat.route.server.session.ClientSessionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -54,17 +56,33 @@ public class UserHandler extends IMHandler<IMRequest> {
         Header header = request.getHeader();
         switch (header.getCommandId()) {
             case Commands.LOGIN_REQUEST: {
-                login(connection, request);
-                break;
+                 login(connection, request);
+                 break;
             }
             case Commands.LOGIN_CHANNEL_REQUEST:
-                loginChannel(connection, request);
-                break;
+                 loginChannel(connection, request);
+                 break;
             case Commands.FRIEND_REQUEST:
-                receiveFriend(connection, request);
+                 receiveFriend(connection, request);
+                 break;
+            case Commands.FRIEND_ADD_REQUEST:
+                 addFriend(connection,request);
+                 break;
+            case Commands.FRIEND_REMOVE_REQUEST:
+                 removeFriend(connection,request);
+                 break;
+            case Commands.FRIEND_FAVORITE_REQUEST:
+                 favoriteFriend(connection,request);
+                 break;
+            case Commands.FRIEND_BLOCK_REQUEST:
+                 blockFriend(connection,request);
+                 break;
+            case Commands.FRIEND_EDITNAME_REQUEST:
+                 editFriendName(connection,request);
+                 break;
             default:
-                connection.close();
-                break;
+                 connection.close();
+                 break;
         }
     }
 
@@ -106,11 +124,8 @@ public class UserHandler extends IMHandler<IMRequest> {
     private void login(IMConnection connection, IMRequest request) {
         UserDTO userDTO = request.readEntity(UserDTO.class);
         String account = userDTO.getUser().getAccount();
-        //String password = userDTO.getUser().getPassword();
         long uin = userDTO.getUser().getUin();
-        //userService.register(account,password , uin);
         userService.register(account , uin);
-        //Login login = userService.login(account, password);
         Login login = userService.login(account);
 
         IMResponse resp = new IMResponse();
@@ -182,4 +197,33 @@ public class UserHandler extends IMHandler<IMRequest> {
         }
     }
 
+    private void addFriend(IMConnection connection , IMRequest request){
+        FriendDTO friendDTO = request.readEntity(FriendDTO.class);
+        Friend friend = friendDTO.getFriend();
+        friendService.saveFriend(friend.getUserName(),friend.getFriendUserName());
+    }
+
+    private void removeFriend(IMConnection connection , IMRequest request){
+        FriendDTO friendDTO  = request.readEntity(FriendDTO.class);
+        Friend friend = friendDTO.getFriend();
+        friendService.removeFriend(friend.getUserName(),friend.getFriendUserName());
+    }
+
+    private void favoriteFriend(IMConnection connection , IMRequest request){
+        FriendDTO friendDTO = request.readEntity(FriendDTO.class);
+        Friend friend = friendDTO.getFriend();
+        friendService.favoriteFriend(friend.getUserName(),friend.getFriendUserName());
+    }
+
+    private void blockFriend(IMConnection connection , IMRequest request){
+        FriendDTO friendDTO = request.readEntity(FriendDTO.class);
+        Friend friend = friendDTO.getFriend();
+        friendService.blockFriend(friend.getUserName(),friend.getFriendUserName());
+    }
+
+    private void editFriendName(IMConnection connection , IMRequest request){
+        FriendDTO friendDTO = request.readEntity(FriendDTO.class);
+        Friend friend = friendDTO.getFriend();
+        friendService.editFriendName(friend.getUserName(),friend.getFriendUserName(),friend.getFriendName());
+    }
 }
