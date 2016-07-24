@@ -5,6 +5,9 @@ import io.ganguo.chat.route.biz.repository.FriendRepository;
 import io.ganguo.chat.route.biz.service.FriendService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -41,6 +44,28 @@ public class FriendServiceImpl implements FriendService {
             }
         }
     }
+
+    public void favoriteFriend(String username , String friendUserName){
+        Query searchUserQuery = new Query(Criteria.where("username").is(username).andOperator(Criteria.where("friendUserName").is(friendUserName)));
+        Update update = new Update();
+        update.set("isFavorite", "true");
+        mongoTemplate.findAndModify(searchUserQuery , update , Friend.class);
+    }
+
+    public void blockFriend(String username , String friendUserName){
+        Query searchUserQuery = new Query(Criteria.where("username").is(username).andOperator(Criteria.where("friendUserName").is(friendUserName)));
+        Update update = new Update();
+        update.set("isBlock", "true");
+        mongoTemplate.findAndModify(searchUserQuery , update , Friend.class);
+    }
+
+    public void editFriendName(String username , String friendUserName , String friendName){
+        Query searchUserQuery = new Query(Criteria.where("username").is(username).andOperator(Criteria.where("friendUserName").is(friendUserName)));
+        Update update = new Update();
+        update.set("friendName" , friendName);
+        mongoTemplate.findAndModify(searchUserQuery , update , Friend.class);
+    }
+
 
     public List<Friend>findByUsername(String username){
         return  friendRepository.findByUsername(username);
