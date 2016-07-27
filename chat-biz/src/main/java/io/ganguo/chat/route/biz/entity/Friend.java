@@ -12,8 +12,11 @@ public class Friend extends  BaseEntity{
     private String friendName = "";
     private String username;
     private String[] friendArray;
-    private boolean isFavorite = false;
-    private boolean isBlock = false;
+    private int isFavorite = 0;
+    private int isBlock = 0;
+    private int[] favoriteArray = {0};
+    private int[] blockArray = {0};
+
 
     public Friend(){
 
@@ -56,20 +59,36 @@ public class Friend extends  BaseEntity{
         this.friendArray = friendArray;
     }
 
-    public boolean getIsFavorite(){
+    public int getIsFavorite(){
         return isFavorite;
     }
 
-    public void setIsFavorite(boolean isFavorite){
+    public void setIsFavorite(int isFavorite){
         this.isFavorite = isFavorite;
     }
 
-    public boolean getIsBlock(){
+    public int getIsBlock(){
         return isBlock;
     }
 
-    public void setIsBlock(boolean isBlock){
+    public void setIsBlock(int isBlock){
         this.isBlock = isBlock;
+    }
+
+    public int[] getFavoriteArray(){
+        return favoriteArray;
+    }
+
+    public void setFavoriteArray(int[] favoriteArray){
+        this.favoriteArray = favoriteArray;
+    }
+
+    public int[] getBlockArray(){
+        return blockArray;
+    }
+
+    public void setBlockArray(int[] blockArray){
+        this.blockArray = blockArray;
     }
 
     @Override
