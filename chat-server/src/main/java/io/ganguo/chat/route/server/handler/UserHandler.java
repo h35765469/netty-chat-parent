@@ -177,10 +177,16 @@ public class UserHandler extends IMHandler<IMRequest> {
         List<Friend>friendList = friendService.getFriend(friend.getUserName());
         if(friendList !=null){
             String[] friendArray = new String[friendList.size()];
+            int[] favoriteArray = new int[friendList.size()];
+            int[] blockArray = new int[friendList.size()];
             for(int i = 0 ; i < friendList.size() ; i++){
                 friendArray[i] = friendList.get(i).getFriendUserName();
+                favoriteArray[i] = friendList.get(i).getIsFavorite();
+                blockArray[i] = friendList.get(i).getIsBlock();
             }
             friend.setFriendArray(friendArray);
+            friend.setFavoriteArray(favoriteArray);
+            friend.setBlockArray(blockArray);
         }else{
             String[] friendArray = new String[0];
             friend.setFriendArray(friendArray);
@@ -212,7 +218,7 @@ public class UserHandler extends IMHandler<IMRequest> {
     private void favoriteFriend(IMConnection connection , IMRequest request){
         FriendDTO friendDTO = request.readEntity(FriendDTO.class);
         Friend friend = friendDTO.getFriend();
-        friendService.favoriteFriend(friend.getUserName(),friend.getFriendUserName());
+        friendService.favoriteFriend(friend.getUserName(),friend.getFriendUserName(),friend.getIsFavorite());
     }
 
     private void blockFriend(IMConnection connection , IMRequest request){
