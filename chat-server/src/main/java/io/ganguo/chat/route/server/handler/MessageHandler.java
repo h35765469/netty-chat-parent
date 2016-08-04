@@ -56,11 +56,17 @@ public class MessageHandler extends IMHandler<IMRequest> {
             case Commands.USER_MESSAGE_SUCCESS:
                 onUserMessageSuccess(connection, request);
                 break;
+            case Commands.USER_MESSAGE_ALREADYREAD:
+                onUserMessageAlreadyRead(connection,request);
+                break;
             case Commands.USER_FILE_REQUEST:
                 sendUserFile(connection,request);
                 break;
             case Commands.USER_FILE_SUCCESS:
                 onUserFileSuccess(connection,request);
+                break;
+            case Commands.USER_LOGOUT_REQUEST:
+                onUserLogout(connection , request);
                 break;
             default:
                 connection.close();
@@ -73,24 +79,23 @@ public class MessageHandler extends IMHandler<IMRequest> {
         Message message = messageDTO.getMessage();
         List<Message> list = new ArrayList<Message>();
         list = messageService.GetOfflineMessage(message.getFrom());
-        String[] offlineMessageArray = new String[list.size()];
         if( list != null){
+            String[] offlineMessageArray = new String[list.size()];
             for(int i = 0 ; i < list.size() ; i++){
-                System.out.println("離線訊息是 : " + list.get(i).getMessage());
                 offlineMessageArray[i] = list.get(i).getMessage();
             }
             messageService.RemoveOfflineMessage(message.getFrom());
-        }
 
-        ClientSession session = ClientSessionManager.getInstance().get(messageDTO.getFrom());
-        IMResponse resp = new IMResponse();
-        Header header = request.getHeader();
-        if(session != null){
-            resp.setHeader(request.getHeader());
-            OfflineMessage offlineMessage = new OfflineMessage();
-            offlineMessage.setOfflineMessageArray(offlineMessageArray);
-            resp.writeEntity(new OfflineMessageDTO(offlineMessage));
-            session.getConnection().sendResponse(resp);
+            ClientSession session = ClientSessionManager.getInstance().get(messageDTO.getFrom());
+            IMResponse resp = new IMResponse();
+            Header header = request.getHeader();
+            if(session != null){
+                resp.setHeader(request.getHeader());
+                OfflineMessage offlineMessage = new OfflineMessage();
+                offlineMessage.setOfflineMessageArray(offlineMessageArray);
+                resp.writeEntity(new OfflineMessageDTO(offlineMessage));
+                session.getConnection().sendResponse(resp);
+            }
         }
     }
 
@@ -127,6 +132,23 @@ public class MessageHandler extends IMHandler<IMRequest> {
         resp.setHeader(request.getHeader());
         resp.writeEntity(ack);
         session.getConnection().sendResponse(resp);
+    }
+
+    private void onUserMessageAlreadyRead(IMConnection connection, IMRequest request){
+        MessageDTO messageDTO = request.readEntity(MessageDTO.class);
+        ClientSession session = ClientSessionManager.getInstance().get(messageDTO.getFrom());
+        IMResponse resp = new IMResponse();
+        Header header = request.getHeader();
+        if (session != null) {
+            resp.setHeader(request.getHeader());
+            resp.writeEntity(messageDTO);
+            session.getConnection().sendResponse(resp);
+        } else {
+
+            header.setCommandId(Commands.ERROR_USER_NOT_EXISTS);
+            resp.setHeader(request.getHeader());
+            connection.sendResponse(resp);
+        }
     }
 
 
@@ -187,6 +209,10 @@ public class MessageHandler extends IMHandler<IMRequest> {
         resp.setHeader(request.getHeader());
         resp.writeEntity(ack);
         session.getConnection().sendResponse(resp);
+    }
+
+    private void onUserLogout(IMConnection connection , IMRequest request){
+        connection.close();
     }
 
 
