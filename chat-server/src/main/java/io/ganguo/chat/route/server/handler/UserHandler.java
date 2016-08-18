@@ -77,6 +77,9 @@ public class UserHandler extends IMHandler<IMRequest> {
             case Commands.FRIEND_BLOCK_REQUEST:
                  blockFriend(connection,request);
                  break;
+            case Commands.FRIEND_VIEWER_REQUEST:
+                 viewFriend(connection,request);
+                 break;
             case Commands.FRIEND_EDITNAME_REQUEST:
                  editFriendName(connection,request);
                  break;
@@ -177,14 +180,24 @@ public class UserHandler extends IMHandler<IMRequest> {
         List<Friend>friendList = friendService.getFriend(friend.getUserName());
         if(friendList !=null){
             String[] friendArray = new String[friendList.size()];
+            String[] friendNameArray = new String[friendList.size()];
             int[] favoriteArray = new int[friendList.size()];
             int[] blockArray = new int[friendList.size()];
+            int[] viewArray = new int[friendList.size()];
+
             for(int i = 0 ; i < friendList.size() ; i++){
                 friendArray[i] = friendList.get(i).getFriendUserName();
+                if(friendList.get(i).getFriendName().equals("")){
+                    friendNameArray[i] = friendList.get(i).getFriendUserName();
+                }else{
+                    friendNameArray[i] = friendList.get(i).getFriendName();
+                }
                 favoriteArray[i] = friendList.get(i).getIsFavorite();
                 blockArray[i] = friendList.get(i).getIsBlock();
             }
+
             friend.setFriendArray(friendArray);
+            friend.setFriendNameArray(friendNameArray);
             friend.setFavoriteArray(favoriteArray);
             friend.setBlockArray(blockArray);
         }else{
@@ -225,6 +238,12 @@ public class UserHandler extends IMHandler<IMRequest> {
         FriendDTO friendDTO = request.readEntity(FriendDTO.class);
         Friend friend = friendDTO.getFriend();
         friendService.blockFriend(friend.getUserName(),friend.getFriendUserName());
+    }
+
+    private void viewFriend(IMConnection connection , IMRequest request){
+        FriendDTO friendDTO = request.readEntity(FriendDTO.class);
+        Friend friend = friendDTO.getFriend();
+        friendService.viewFriend(friend.getUserName(),friend.getFriendUserName(),friend.getViewer());
     }
 
     private void editFriendName(IMConnection connection , IMRequest request){
