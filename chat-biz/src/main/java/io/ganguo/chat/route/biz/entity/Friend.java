@@ -10,12 +10,16 @@ public class Friend extends  BaseEntity{
 
     private String friendUserName;
     private String friendName = "";
+    private String originalFriendName = "";
     private String username;
     private String[] friendArray;
+    private String[] friendNameArray ={};
     private int isFavorite = 0;
     private int isBlock = 0;
+    private int viewer = 0;
     private int[] favoriteArray = {0};
     private int[] blockArray = {0};
+    private int[] viewerArray = {0};
 
 
     public Friend(){
@@ -43,6 +47,14 @@ public class Friend extends  BaseEntity{
         this.friendName = friendName;
     }
 
+    public String getOriginalFriendName(){
+        return originalFriendName;
+    }
+
+    public void setOriginalFriendName(String originalFriendName){
+        this.originalFriendName = originalFriendName;
+    }
+
     public String getUserName(){
         return username;
     }
@@ -59,6 +71,14 @@ public class Friend extends  BaseEntity{
         this.friendArray = friendArray;
     }
 
+    public String[] getFriendNameArray(){
+        return friendNameArray;
+    }
+
+    public void setFriendNameArray(String[] friendNameArray){
+        this.friendNameArray = friendNameArray;
+    }
+
     public int getIsFavorite(){
         return isFavorite;
     }
@@ -73,6 +93,22 @@ public class Friend extends  BaseEntity{
 
     public void setIsBlock(int isBlock){
         this.isBlock = isBlock;
+    }
+
+    public int getViewer(){
+        return viewer;
+    }
+
+    public void setViewer(int viewer){
+        this.viewer = viewer;
+    }
+
+    public int[] getViewerArray(){
+        return viewerArray;
+    }
+
+    public void setViewerArray(int[] viewerArray){
+        this.viewerArray = viewerArray;
     }
 
     public int[] getFavoriteArray(){
