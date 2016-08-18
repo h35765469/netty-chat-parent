@@ -44,7 +44,10 @@ public class Commands {
     public static final short FRIEND_BLOCK_REQUEST = 0x0006;
     public static final short FRIEND_BLOCK_SUCCESS = 0x6006;
 
+
     public static final short FRIEND_EDITNAME_REQUEST = 0x0007;
+
+    public static final short FRIEND_VIEWER_REQUEST = 0x0008;
     /**
      * 消息
      */
