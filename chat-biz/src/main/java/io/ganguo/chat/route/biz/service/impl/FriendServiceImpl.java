@@ -45,17 +45,24 @@ public class FriendServiceImpl implements FriendService {
         }
     }
 
-    public void favoriteFriend(String username , String friendUserName){
+    public void favoriteFriend(String username , String friendUserName , int isFavorite){
         Query searchUserQuery = new Query(Criteria.where("username").is(username).andOperator(Criteria.where("friendUserName").is(friendUserName)));
         Update update = new Update();
-        update.set("isFavorite", "true");
+        update.set("isFavorite", isFavorite);
         mongoTemplate.findAndModify(searchUserQuery , update , Friend.class);
     }
 
     public void blockFriend(String username , String friendUserName){
         Query searchUserQuery = new Query(Criteria.where("username").is(username).andOperator(Criteria.where("friendUserName").is(friendUserName)));
         Update update = new Update();
-        update.set("isBlock", "true");
+        update.set("isBlock", 0);
+        mongoTemplate.findAndModify(searchUserQuery , update , Friend.class);
+    }
+
+    public void viewFriend(String username , String friendUserName , int viewer){
+        Query searchUserQuery = new Query(Criteria.where("username").is(username).andOperator(Criteria.where("friendUserName").is(friendUserName)));
+        Update update = new Update();
+        update.set("viewer", viewer);
         mongoTemplate.findAndModify(searchUserQuery , update , Friend.class);
     }
 
